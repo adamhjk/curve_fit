@@ -14,7 +14,7 @@ Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "curve_fit"
   gem.homepage = "http://github.com/adamhjk/curve_fit"
-  gem.license = "MIT"
+  gem.license = "Apache 2.0"
   gem.summary = %Q{Wrapper for curve fitting and confidence around cfityk}
   gem.description = %Q{Creates curve fitting and confidence intervals from cfityk}
   gem.email = "adam@opscode.com"

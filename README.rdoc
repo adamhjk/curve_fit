@@ -1,6 +1,126 @@
 = curve_fit
 
-Description goes here.
+A wrapper around fityk (http://fityk.nieto.pl/) to handle fitting a curve to X+Y data, creating confidence intervals, and projecting up to a ceiling.
+
+You must have a working installation of cfityk in your path for this library to work.
+
+== Examples
+
+The primary use of this library is to take a data array of X+Y points and return to you a trend line, confidence intervals, a best-guess shape and an r-squared value.
+
+  require 'curve_fit'
+
+  cf = CurveFit.new
+  cf.fit(
+    [
+      [ 0, 1000.0 ],
+      [ 1, 2003.0 ],
+      [ 2, 3010.0 ],
+      [ 3, 4084.0 ],
+      [ 4, 5012.0 ],
+      [ 5, 6075.0 ]
+    ] 
+  )
+
+Returns:
+
+  {
+    :data => [
+      [0, 1000.0], 
+      [1, 2003.0], 
+      [2, 3010.0], 
+      [3, 4084.0], 
+      [4, 5012.0], 
+      [5, 6075.0]
+    ], 
+    :trend => [
+      [0, 997.27], 
+      [1, 2010.57], 
+      [2, 3023.87], 
+      [3, 4037.1699999999996], 
+      [4, 5050.469999999999], 
+      [5, 6063.77]
+    ], 
+    :top_confidence => [
+      [0, 1010.5636999999999], 
+      [1, 2030.03089], 
+      [2, 3049.49808], 
+      [3, 4068.9652699999997], 
+      [4, 5088.43246], 
+      [5, 6107.899649999999]
+    ], 
+    :bottom_confidence => [
+      [0, 983.9763], 
+      [1, 1991.1091099999999], 
+      [2, 2998.24192], 
+      [3, 4005.3747299999995], 
+      [4, 5012.50754], 
+      [5, 6019.64035]
+    ], 
+    :ceiling=>[], 
+    :r_squared=>0.999774, 
+    :guess=>"Linear" 
+  }
+
+You can pass a second argument, which will be the ceiling to project up to.  In
+that case, the trend, top and bottom confidence data will be extended out until
+the Y value is >= the ceiling.  Additionally, the ceiling line will be
+populated with the ceiling value for each value of X.
+
+  cf.fit(
+    [
+      [ 0, 1000.0 ],
+      [ 1, 2003.0 ],
+      [ 2, 3010.0 ],
+      [ 3, 4084.0 ],
+      [ 4, 5012.0 ],
+      [ 5, 6075.0 ]
+    ],
+    10000
+  )
+
+Would extrapolate up to 10000.
+
+Currently, this library only supports linear and quadratic fits.  By default it
+tries both, in that order.  You can specify the fits to guess manually, if you
+want to narrow things down:
+
+  cf.fit(
+    [
+      [ 0, 1000.0 ],
+      [ 1, 2003.0 ],
+      [ 2, 3010.0 ],
+      [ 3, 4084.0 ],
+      [ 4, 5012.0 ],
+      [ 5, 6075.0 ]
+    ],
+    10000,
+    [ "Quadratic", "Linear" ]
+  )
+
+Finally, you can pass a block to manipulate the value of X in the result set. This is often used if your data is a time series - under the hood, we convert the values of X to the position in the array (0..n).  This block lets you get the original data back out, and support generating new correct values as you extrapolate to a ceiling.
+
+For example, lets assume we're daily from 2010/1/4.
+
+  cf.fit(
+    [
+      [ Time.utc("2010", "1", "4").to_i, 1000.0 ],
+      [ Time.utc("2010", "1", "5").to_i, 2003.0 ],
+      [ Time.utc("2010", "1", "6").to_i, 3010.0 ],
+      [ Time.utc("2010", "1", "7").to_i, 4084.0 ],
+      [ Time.utc("2010", "1", "8").to_i, 5012.0 ],
+      [ Time.utc("2010", "1", "9").to_i, 6075.0 ]
+    ],
+    10000
+  ) do |x|
+    if x == 0
+      Time.utc("2011", "1", "4").to_i
+    else
+      (Time.utc("2011", "1", "4") + ( 60 * 60 * 24 * 1 ))
+    end
+  end
+
+Will result in the data set, and extrapolated data, having seconds since the epoch for X values.
 
 == Contributing to curve_fit
  
@@ -12,8 +132,21 @@ Description goes here.
 * Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
 * Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
-== Copyright
+== Copyright and License
 
-Copyright (c) 2011 Adam Jacob. See LICENSE.txt for
-further details.
+Copyright 2010 Opscode, Inc. 
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+See LICENSE file for complete license details.
 
