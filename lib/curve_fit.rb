@@ -79,13 +79,13 @@ class CurveFit
 
   # Writes a data set out to an X+Y file
   #
-  # @param [String] filename
-  #   If given, the filename to write. Otherwise, creates a tempfile.
   # @param [Array] data
   #   An X+Y array: 
   #     [ [ X, Y ], [ X, Y ] ]
+  # @param [String] filename
+  #   If given, the filename to write. Otherwise, creates a tempfile.
   # @return [IO] data_file Returns the closed file IO object.
-  def write_xy_file(filename=nil, data)
+  def write_xy_file(data, filename=nil)
     data_file = nil
     if filename
       data_file = File.open(filename, "w")
@@ -94,10 +94,8 @@ class CurveFit
       filename = data_file.path
     end
 
-    x_pos = 0
     data.each do |point|
-      data_file.puts("#{x_pos} #{point[1]}")
-      x_pos += 1
+      data_file.puts("#{point[0]} #{point[1]}")
     end
 
     data_file.close

@@ -29,7 +29,7 @@ describe "CurveFit" do
 
   describe "write_xy_file" do
     it "should write to a tempfile" do
-      data_file = @cf.write_xy_file(nil, PERFECTLY_LINEAR_DATA)
+      data_file = @cf.write_xy_file(PERFECTLY_LINEAR_DATA, nil)
       File.exists?(data_file.path).should == true
     end
 
@@ -38,7 +38,7 @@ describe "CurveFit" do
       tf.close
       filename = tf.path
       tf.unlink
-      data_file = @cf.write_xy_file(filename, PERFECTLY_LINEAR_DATA)
+      data_file = @cf.write_xy_file(PERFECTLY_LINEAR_DATA, filename)
       File.exists?(filename).should == true
       File.unlink(filename)
     end
@@ -46,7 +46,7 @@ describe "CurveFit" do
 
   describe "load_xy_file" do
     it "should read from an XY file" do
-      data_file = @cf.write_xy_file(nil, PERFECTLY_LINEAR_DATA)
+      data_file = @cf.write_xy_file(PERFECTLY_LINEAR_DATA, nil)
       read_data = @cf.load_xy_file(data_file)
       read_data.should == PERFECTLY_LINEAR_DATA
     end
@@ -58,7 +58,7 @@ describe "CurveFit" do
       tf.close
       filename = tf.path
       tf.unlink
-      data_file = @cf.write_xy_file(filename, PERFECTLY_LINEAR_DATA)
+      data_file = @cf.write_xy_file(PERFECTLY_LINEAR_DATA, filename)
       @cf.append_xy_file(filename, 6, 7000.0)
       appended_data = @cf.load_xy_file(filename)
       appended_data[6].should == [ 6, 7000.0 ]
